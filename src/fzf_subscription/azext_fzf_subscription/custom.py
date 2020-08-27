@@ -16,16 +16,17 @@ def fzf_account_select(cmd, client):
     from azure.cli.core.api import load_subscriptions
 
     subscriptions = load_subscriptions(cmd.cli_ctx, all_clouds=False, refresh=False)
+
     if not subscriptions:
         logger.warning('Please run "az login" to access your accounts.')
+
     for sub in subscriptions:
         sub['cloudName'] = sub.pop('environmentName', None)
-    if not all:
-        enabled_ones = [s for s in subscriptions if s.get('state') == 'Enabled']
-        if len(enabled_ones) != len(subscriptions):
-            logger.warning("A few accounts are skipped as they don't have 'Enabled' state. "
-                           "Use '--all' to display them.")
-            subscriptions = enabled_ones
+
+    enabled_ones = [s for s in subscriptions if s.get('state') == 'Enabled']
+    if len(enabled_ones) != len(subscriptions):
+        logger.warning("A few accounts are skipped as they don't have 'Enabled' state.")
+        subscriptions = enabled_ones
 
     subscription = iterfzf([f'{sub["id"]}\t{sub["name"]}' for sub in subscriptions], prompt='Subscription: ', exact=True, preview='az account show --subscription {1}').split("\t")[0]
 

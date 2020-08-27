@@ -1,5 +1,4 @@
 Microsoft Azure CLI 'fzf_subscription' Extension
 ==========================================
 
-This package is for the 'fzf_subscription' extension.
-i.e. 'az fzf_subscription'
+This extension adds a command to 'az account': select. This command will allow you to interactively select your subscription based on ID or Name, using the fzf tool to filter.
