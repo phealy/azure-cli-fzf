@@ -44,9 +44,9 @@ with open('HISTORY.rst', 'r', encoding='utf-8') as f:
     HISTORY = f.read()
 
 setup(
-    name='azure-cli-fzf',
+    name='fzf',
     version=VERSION,
-    description='Microsoft Azure Command-Line Tools Fzf Extension',
+    description='Microsoft Azure Command-Line Tools fzf Extension',
     # TODO: Update author and email, if applicable
     author='Patrick W. Healy',
     author_email='patrick.healy@microsoft.com',
