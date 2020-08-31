@@ -49,7 +49,7 @@ def fzf_subscription(cmd):
 
     if not subscriptions:
         logger.warning('Please run "az login" to access your accounts.')
-
+    
     for sub in subscriptions:
         sub['cloudName'] = sub.pop('environmentName', None)
 
@@ -58,12 +58,15 @@ def fzf_subscription(cmd):
         logger.warning("A few accounts are skipped as they don't have 'Enabled' state.")
         subscriptions = enabled_ones
 
-    subscriptions_table = str(tabulate([[s["name"], s["id"]] for s in subscriptions], tablefmt='plain')).split('\n')
-    result = iterfzf(subscriptions_table, prompt='Subscription: ', preview='az account show --subscription {-1}')
+    if subscriptions:
+        subscriptions_table = str(tabulate([[s["name"], s["id"]] for s in subscriptions], tablefmt='plain')).split('\n')
+        result = iterfzf(subscriptions_table, prompt='Subscription: ', preview='az account show --subscription {-1}')
 
-    if result:
-        subscription = result.split(" ")[-1]
-        Profile(cli_ctx=cmd.cli_ctx).set_active_subscription(subscription)
-        return next((s for s in subscriptions if s["id"] == subscription))
+        if result:
+            subscription = result.split(" ")[-1]
+            Profile(cli_ctx=cmd.cli_ctx).set_active_subscription(subscription)
+            return next((s for s in subscriptions if s["id"] == subscription))
+        else:
+            pass
     else:
         pass
