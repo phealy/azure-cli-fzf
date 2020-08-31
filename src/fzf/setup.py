@@ -16,7 +16,7 @@ except ImportError:
 
 # TODO: Confirm this is the right version number you want and it matches your
 # HISTORY.rst entry.
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 # The full list of classifiers is available at
 # https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -46,10 +46,8 @@ setup(
     name='fzf',
     version=VERSION,
     description='Microsoft Azure Command-Line Tools fzf Extension',
-    # TODO: Update author and email, if applicable
     author='Patrick W. Healy',
     author_email='patrick.healy@microsoft.com',
-    # TODO: consider pointing directly to your source code instead of the generic repo
     url='https://github.com/phealy/azure-cli-fzf',
     long_description=README + '\n\n' + HISTORY,
     license='MIT',

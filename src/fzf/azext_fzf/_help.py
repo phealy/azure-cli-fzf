@@ -9,7 +9,23 @@ from knack.help_files import helps  # pylint: disable=unused-import
 
 helps['fzf'] = """
     type: group
-    short-summary: Commands to select your default object using fzf.
+    short-summary: Commands to select active or default objects via fzf.
+    long-summary: |-
+        Select your active subscription or set defaults with an easy selection interface (fzf).
+
+        Search syntax:
+
+        Token    Match type                  Description
+        -------  --------------------------  ----------------------------------
+        sbtrkt   fuzzy-match                 Items that match sbtrkt
+        'wild    exact-match (quoted)        Items that include wild
+        ^music   prefix-exact-match          Items that start with music
+        .mp3$    suffix-exact-match          Items that end with .mp3
+        !fire    inverse-exact-match         Items that do not include fire
+        !^music  inverse-prefix-exact-match  Items that do not start with music
+        !.mp3$   inverse-suffix-exact-match  Items that do not end with .mp3
+
+        More information about search syntax or fzf in general can be found on the fzf project page: https://github.com/junegunn/fzf#search-syntax
 """
 
 helps['fzf group'] = """
@@ -26,18 +42,3 @@ helps['fzf subscription'] = """
     type: command
     short-summary: select default subscription.
 """
-
-# helps['fzf delete'] = """
-#     type: command
-#     short-summary: Delete a Fzf.
-# """
-
-# helps['fzf show'] = """
-#     type: command
-#     short-summary: Show details of a Fzf.
-# """
-
-# helps['fzf update'] = """
-#     type: command
-#     short-summary: Update a Fzf.
-# """
