@@ -17,6 +17,11 @@ helps['fzf group'] = """
     short-summary: select default resource group.
 """
 
+helps['fzf location'] = """
+    type: command
+    short-summary: select default location.
+"""
+
 helps['fzf subscription'] = """
     type: command
     short-summary: select default subscription.
