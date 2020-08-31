@@ -34,7 +34,6 @@ CLASSIFIERS = [
 
 # TODO: Add any additional SDK dependencies here
 DEPENDENCIES = [
-    'azure-cli-core',
     'iterfzf'
 ]
 
