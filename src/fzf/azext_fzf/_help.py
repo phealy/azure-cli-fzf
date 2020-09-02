@@ -28,6 +28,11 @@ helps['fzf'] = """
         More information about search syntax or fzf in general can be found on the fzf project page: https://github.com/junegunn/fzf#search-syntax
 """
 
+helps['fzf install'] = """
+    type: command
+    short-summary: download and install the fzf command.
+"""
+
 helps['fzf group'] = """
     type: command
     short-summary: select default resource group.
