@@ -27,6 +27,7 @@ SUB3 = {'name': 'my-sub3-test', 'state': 'Disabled', 'id': 'ac558ad7-3608-41eb-a
 SUB4 = {'name': 'my-sub4-test', 'state': 'Enabled', 'id': 'db094dee-45c7-4592-a726-b2dba5a048eb'}
 SUB_TEST_DATA = [SUB1, SUB2, SUB3, SUB4]
 
+
 class FzfScenarioTest(ScenarioTest):
     """
     Azure-cli fzf module test suite
@@ -39,7 +40,6 @@ class FzfScenarioTest(ScenarioTest):
         """
         self.cmd('fzf install')
 
-
     @AllowLargeResponse()
     def test_fzf_install_bad_version(self):
         """
@@ -47,7 +47,6 @@ class FzfScenarioTest(ScenarioTest):
         """
         with self.assertRaises(CLIError):
             self.cmd('fzf install --version 999.999.999')
-
 
     @AllowLargeResponse()
     @mock.patch('azext_fzf.custom._fzf_get_system', autospec=True)
@@ -59,7 +58,6 @@ class FzfScenarioTest(ScenarioTest):
         with self.assertRaises(CLIError):
             self.cmd('fzf install')
 
-
     @AllowLargeResponse()
     @mock.patch('requests.get', autospec=True)
     def test_fzf_install_requests_get_releases_error(self, urlopen_mock):
@@ -69,7 +67,6 @@ class FzfScenarioTest(ScenarioTest):
         urlopen_mock.side_effect = OSError
         with self.assertRaises(CLIError):
             self.cmd('fzf install')
-
 
     @AllowLargeResponse()
     @mock.patch('requests.get', autospec=True)
@@ -103,7 +100,6 @@ class FzfScenarioTest(ScenarioTest):
         with self.assertRaises(CLIError, msg='Should have received a CLIError.'):
             self.cmd('fzf install')
 
-
     @AllowLargeResponse()
     @mock.patch('azext_fzf.custom._fzf_get_system', autospec=True)
     def test_fzf_install_linux(self, fzf_get_system_mock):
@@ -119,7 +115,6 @@ class FzfScenarioTest(ScenarioTest):
         self.assertTrue(os.path.exists(os.path.join(install_dir, "download", executable)),
                         msg=f'FZF not successfully downloaded to {install_dir}')
         shutil.rmtree(install_dir)
-
 
     @AllowLargeResponse()
     @mock.patch('azext_fzf.custom._fzf_get_system', autospec=True)
@@ -137,7 +132,6 @@ class FzfScenarioTest(ScenarioTest):
                         msg=f'FZF not successfully downloaded to {install_dir}')
         shutil.rmtree(install_dir)
 
-
     @mock.patch('shutil.which', autospec=True)
     def test_fzf_not_found(self, shutil_which_mock):
         """
@@ -147,7 +141,6 @@ class FzfScenarioTest(ScenarioTest):
         with self.assertRaises(CLIError):
             self.cmd('fzf location --filter=eastus')
 
-
     def test_fzf_location_found(self):
         """
         Test fzf location with a known good location.
@@ -156,7 +149,6 @@ class FzfScenarioTest(ScenarioTest):
             self.check('name', "eastus")
         ])
 
-
     def test_fzf_location_not_found(self):
         """
         Test fzf location with a known bad location.
@@ -164,7 +156,6 @@ class FzfScenarioTest(ScenarioTest):
         result = self.cmd('fzf location --filter=NOT/A/VALID/NAME')
         print(result.__dict__)
         self.assertEqual(result.output, '', msg='Got a result when we should not have.')
-
 
     @ResourceGroupPreparer(name_prefix='cli_test_fzf', parameter_name='group_name',
                            parameter_name_for_location='group_location')
@@ -178,14 +169,12 @@ class FzfScenarioTest(ScenarioTest):
             self.check('properties.provisioningState', 'Succeeded')
         ])
 
-
     def test_fzf_group_not_found(self):
         """
         Test fzf group with a known bad location.
         """
         result = self.cmd('fzf group --filter=NOT/A/VALID/NAME')
         self.assertEqual(result.output, '', msg='Got a result when we should not have.')
-
 
     @mock.patch('azure.cli.core._profile.Profile.set_active_subscription', autospec=True)
     @mock.patch('azure.cli.core.api.load_subscriptions', autospec=True)
@@ -198,7 +187,7 @@ class FzfScenarioTest(ScenarioTest):
 
         load_subscriptions_mock.return_value = SUB_TEST_DATA
 
-        self.cmd(f'fzf subscription --filter sub2-test', checks=[
+        self.cmd('fzf subscription --filter sub2-test', checks=[
             self.check('type(@)', 'object'),
             self.check('name', SUB2['name']),
             self.check('id', SUB2['id'])
@@ -207,7 +196,6 @@ class FzfScenarioTest(ScenarioTest):
         # Check that we called set_active_subscription correctly (once, with the right sub)
         set_active_subscription_mock.assert_called_once()
         self.assertEqual(set_active_subscription_mock.call_args.args[1], SUB2['id'])
-
 
     @mock.patch('azure.cli.core._profile.Profile.set_active_subscription', autospec=True)
     @mock.patch('azure.cli.core.api.load_subscriptions', autospec=True)
@@ -221,12 +209,11 @@ class FzfScenarioTest(ScenarioTest):
 
         load_subscriptions_mock.return_value = SUB_TEST_DATA
 
-        result = self.cmd(f'fzf subscription --filter NOT/A/VALID/NAME')
+        result = self.cmd('fzf subscription --filter NOT/A/VALID/NAME')
         self.assertEqual(result.output, '', msg='Got a result when we should not have.')
 
         # Check that we didn't call set_active_subscription
         set_active_subscription_mock.assert_not_called()
-
 
     @mock.patch('azure.cli.core.api.load_subscriptions', autospec=True)
     def test_fzf_subscription_not_logged_in(self, load_subscriptions_mock):
@@ -238,8 +225,7 @@ class FzfScenarioTest(ScenarioTest):
         load_subscriptions_mock.return_value = []
 
         with self.assertRaises(CLIError):
-            self.cmd(f'fzf subscription')
-
+            self.cmd('fzf subscription')
 
     @mock.patch('azure.cli.core._profile.Profile.set_active_subscription', autospec=True)
     @mock.patch('azure.cli.core.api.load_subscriptions', autospec=True)
@@ -257,7 +243,7 @@ class FzfScenarioTest(ScenarioTest):
             }
         ]
 
-        result = self.cmd(f'fzf subscription --filter sub1-test')
+        result = self.cmd('fzf subscription --filter sub1-test')
         self.assertEqual(result.output, '', msg='Got a result when we should not have.')
 
         # Check that we didn't call set_active_subscription

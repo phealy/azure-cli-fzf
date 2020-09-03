@@ -6,6 +6,7 @@
 Initializes the command table for azext_fzf.
 """
 
+
 def load_command_table(self, _):
     """
     Loads the command table for the fzf extension.
@@ -15,7 +16,6 @@ def load_command_table(self, _):
         group.custom_command('group', 'fzf_group')
         group.custom_command('location', 'fzf_location')
         group.custom_command('subscription', 'fzf_subscription')
-
 
     with self.command_group('fzf', is_preview=True):
         pass

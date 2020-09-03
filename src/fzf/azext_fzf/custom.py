@@ -43,6 +43,7 @@ def _fzf_get_filename():
         return "fzf.exe"
     return "fzf"
 
+
 def _fzf_get_install_dir(install_dir=None):
     """
     Return the installation directory and check if it's in the PATH. Default: get_config_dir().
@@ -90,6 +91,7 @@ def _fzf_get_release(version):
     if not release:
         raise CLIError(f'No release found for tag "{version}".')
     return release
+
 
 def fzf_install(version='latest', install_dir=None):
     """
@@ -239,7 +241,7 @@ def _fzf(items, **kwargs):
     # Build arguments list by iterating through kwargs.
     fzf_command = [executable_path]
     for key, value in kwargs.items():
-        if not value is None:
+        if value is not None:
             fzf_command.append(fzf_arguments[key].format(**locals()))
     LOGGER.info('fzf command: %s', " ".join(fzf_command))
 

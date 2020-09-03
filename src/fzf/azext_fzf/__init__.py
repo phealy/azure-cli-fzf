@@ -33,4 +33,4 @@ class FzfCommandsLoader(AzCommandsLoader):
         load_arguments(self, command)
 
 
-COMMAND_LOADER_CLS = FzfCommandsLoader # pylint: disable=invalid-name
+COMMAND_LOADER_CLS = FzfCommandsLoader  # pylint: disable=invalid-name
