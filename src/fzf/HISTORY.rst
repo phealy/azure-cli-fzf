@@ -21,3 +21,7 @@ Release History
 ++++++
 * Completed unit testing
 * Completed pylint
+
+0.9.1
+++++++
+* Corrected platform call to get architecture properly on Windows.

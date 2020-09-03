@@ -98,8 +98,8 @@ def fzf_install(version='latest', install_dir=None):
     Install fzf, a command line fuzzy finder.
     """
 
-    arch = platform.uname().processor
-    if platform.uname().processor == 'x86_64':
+    arch = platform.machine()
+    if arch == 'x86_64':
         arch = 'amd64'
 
     install_dir = _fzf_get_install_dir(install_dir)
