@@ -25,3 +25,11 @@ Release History
 0.9.1
 ++++++
 * Corrected platform call to get architecture properly on Windows.
+
+0.9.2
+++++++
+* Cleaned up unit tests
+* Added --no-default/-d parameter to allow use in scripts for finding a subscription/group/location without changing the default.
+* Added more error handling to group/location
+* Used a better function to get_resource_groups()
+* Moved tabulate call to its own function so that it's not repeated.

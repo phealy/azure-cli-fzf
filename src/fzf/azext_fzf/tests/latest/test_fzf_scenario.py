@@ -41,6 +41,38 @@ class FzfScenarioTest(ScenarioTest):
         self.cmd('fzf install')
 
     @AllowLargeResponse()
+    @mock.patch('azext_fzf.custom._fzf_get_system', autospec=True)
+    def test_fzf_install_linux(self, fzf_get_system_mock):
+        """
+        Test fzf install code flow on Linux.
+        """
+        fzf_get_system_mock.return_value = "Linux"
+
+        install_dir = tempfile.mkdtemp()
+        executable = "fzf"
+
+        self.cmd(f'fzf install -i {install_dir}/download -v 0.22.0')
+        self.assertTrue(os.path.exists(os.path.join(install_dir, "download", executable)),
+                        msg=f'FZF not successfully downloaded to {install_dir}')
+        shutil.rmtree(install_dir)
+
+    @AllowLargeResponse()
+    @mock.patch('azext_fzf.custom._fzf_get_system', autospec=True)
+    def test_fzf_install_windows(self, fzf_get_system_mock):
+        """
+        Test fzf install code flow on Windows.
+        """
+        fzf_get_system_mock.return_value = "Windows"
+
+        install_dir = tempfile.mkdtemp()
+        executable = "fzf.exe"
+
+        self.cmd(f'fzf install -i {install_dir}/download --verbose')
+        self.assertTrue(os.path.exists(os.path.join(install_dir, "download", executable)),
+                        msg=f'FZF not successfully downloaded to {install_dir}')
+        shutil.rmtree(install_dir)
+
+    @AllowLargeResponse()
     def test_fzf_install_bad_version(self):
         """
         Verify fzf install fails with a bad version.
@@ -100,40 +132,8 @@ class FzfScenarioTest(ScenarioTest):
         with self.assertRaises(CLIError, msg='Should have received a CLIError.'):
             self.cmd('fzf install')
 
-    @AllowLargeResponse()
-    @mock.patch('azext_fzf.custom._fzf_get_system', autospec=True)
-    def test_fzf_install_linux(self, fzf_get_system_mock):
-        """
-        Test fzf install code flow on Linux.
-        """
-        fzf_get_system_mock.return_value = "Linux"
-
-        install_dir = tempfile.mkdtemp()
-        executable = "fzf"
-
-        self.cmd(f'fzf install -d {install_dir}/download -v 0.22.0')
-        self.assertTrue(os.path.exists(os.path.join(install_dir, "download", executable)),
-                        msg=f'FZF not successfully downloaded to {install_dir}')
-        shutil.rmtree(install_dir)
-
-    @AllowLargeResponse()
-    @mock.patch('azext_fzf.custom._fzf_get_system', autospec=True)
-    def test_fzf_install_windows(self, fzf_get_system_mock):
-        """
-        Test fzf install code flow on Windows.
-        """
-        fzf_get_system_mock.return_value = "Windows"
-
-        install_dir = tempfile.mkdtemp()
-        executable = "fzf.exe"
-
-        self.cmd(f'fzf install -d {install_dir}/download --verbose')
-        self.assertTrue(os.path.exists(os.path.join(install_dir, "download", executable)),
-                        msg=f'FZF not successfully downloaded to {install_dir}')
-        shutil.rmtree(install_dir)
-
     @mock.patch('shutil.which', autospec=True)
-    def test_fzf_not_found(self, shutil_which_mock):
+    def test_fzf_fzf_not_found(self, shutil_which_mock):
         """
         Test error handling when fzf isn't found.
         """
@@ -141,7 +141,7 @@ class FzfScenarioTest(ScenarioTest):
         with self.assertRaises(CLIError):
             self.cmd('fzf location --filter=eastus')
 
-    def test_fzf_location_found(self):
+    def test_fzf_location(self):
         """
         Test fzf location with a known good location.
         """
@@ -157,9 +157,21 @@ class FzfScenarioTest(ScenarioTest):
         print(result.__dict__)
         self.assertEqual(result.output, '', msg='Got a result when we should not have.')
 
+    @mock.patch('azure.cli.core.commands.parameters.get_subscription_locations', autospec=True)
+    def test_fzf_location_not_logged_in(self, get_subscription_locations_mock):
+        """
+        Test fzf location when not logged in.
+        """
+        cmd = mock.MagicMock()
+        cmd.cli_ctx = DummyCli()
+        get_subscription_locations_mock.return_value = []
+
+        with self.assertRaises(CLIError):
+            self.cmd('fzf location')
+
     @ResourceGroupPreparer(name_prefix='cli_test_fzf', parameter_name='group_name',
                            parameter_name_for_location='group_location')
-    def test_fzf_group_found(self, group_name, group_location):
+    def test_fzf_group(self, group_name, group_location):
         """
         Test fzf group with a known good location.
         """
@@ -176,9 +188,21 @@ class FzfScenarioTest(ScenarioTest):
         result = self.cmd('fzf group --filter=NOT/A/VALID/NAME')
         self.assertEqual(result.output, '', msg='Got a result when we should not have.')
 
+    @mock.patch('azure.cli.core.commands.parameters.get_resource_groups', autospec=True)
+    def test_fzf_group_not_logged_in(self, get_resource_groups_mock):
+        """
+        Test fzf group when not logged in.
+        """
+        cmd = mock.MagicMock()
+        cmd.cli_ctx = DummyCli()
+        get_resource_groups_mock.return_value = []
+
+        with self.assertRaises(CLIError):
+            self.cmd('fzf group')
+
     @mock.patch('azure.cli.core._profile.Profile.set_active_subscription', autospec=True)
     @mock.patch('azure.cli.core.api.load_subscriptions', autospec=True)
-    def test_fzf_subscription_found(self, load_subscriptions_mock, set_active_subscription_mock):
+    def test_fzf_subscription(self, load_subscriptions_mock, set_active_subscription_mock):
         """
         Test fzf subscription with a known good subscription.
         """
@@ -226,25 +250,3 @@ class FzfScenarioTest(ScenarioTest):
 
         with self.assertRaises(CLIError):
             self.cmd('fzf subscription')
-
-    @mock.patch('azure.cli.core._profile.Profile.set_active_subscription', autospec=True)
-    @mock.patch('azure.cli.core.api.load_subscriptions', autospec=True)
-    def test_fzf_subscription_all_disabled(self, load_subscriptions_mock,
-                                           set_active_subscription_mock):
-        """
-        Test fzf subscription when all subscriptions are disabled or unavailabile.
-        """
-        cmd = mock.MagicMock()
-        cmd.cli_ctx = DummyCli()
-        load_subscriptions_mock.return_value = [
-            {
-                'name': 'my-sub1-test',
-                'state': 'Disabled', 'id': '4858e813-ee7a-43f2-8587-6cc4a2135266'
-            }
-        ]
-
-        result = self.cmd('fzf subscription --filter sub1-test')
-        self.assertEqual(result.output, '', msg='Got a result when we should not have.')
-
-        # Check that we didn't call set_active_subscription
-        set_active_subscription_mock.assert_not_called()

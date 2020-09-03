@@ -16,6 +16,7 @@ import tarfile
 import zipfile
 
 import requests
+
 from azure.cli.core.api import get_config_dir
 from knack.log import get_logger
 from knack.util import CLIError
@@ -258,50 +259,70 @@ def _fzf(items, **kwargs):
     LOGGER.info('fzf output: %s', output)
     return output
 
+def _fzf_table(items, headers=None):
+    """
+    Produce a pretty table as an array of strings given headers and items.
+    """
+    return str(tabulate(items, headers=headers, tablefmt='github')).split('\n')
 
-def fzf_group(cmd, fzf_filter=None):
+def fzf_group(cmd, fzf_filter=None, no_default=False):
     """
     Use fzf to quickly filter and select a default resource group.
     """
-    from azure.cli.command_modules.resource._client_factory import _resource_client_factory
+    from azure.cli.core.commands.parameters import get_resource_groups
+    groups = get_resource_groups(cmd.cli_ctx)
 
-    groups = list(_resource_client_factory(cmd.cli_ctx).resource_groups.list())
-    groups_list = [[g.name, g.location] for g in sorted(groups, key=lambda i: i.name)]
+    if not groups:
+        raise CLIError('No resource groups found.'
+                       'If you are logged in, make sure groups exist'
+                       'and you have access to them. If you are not logged'
+                       'in, please run "az login" to access your account.')
+
+    # Use tabulate to make a pretty table for fzf to display
     headers = ["Name", "Location"]
-    groups_table = str(tabulate(groups_list, headers=headers, tablefmt='github')).split('\n')
-    result = _fzf(groups_table, header_lines=2,
-                  preview='az group show -n {2}', fzf_filter=fzf_filter)
+    groups_sorted = sorted(groups, key=lambda i: i.name)
+    groups_list = [[group.name, group.location] for group in groups_sorted]
+    result = _fzf(_fzf_table(groups_list, headers), header_lines=2, fzf_filter=fzf_filter)
 
     if result:
         group = result.split('|')[1].strip()
-        cmd.cli_ctx.config.set_value(cmd.cli_ctx.config.defaults_section_name, 'group', group)
+        LOGGER.info('Selected group name: %s', group)
+        if not no_default:
+            cmd.cli_ctx.config.set_value(cmd.cli_ctx.config.defaults_section_name,
+                                         'group', group)
         return next((g for g in groups if g.name == group), None)
 
     return None
 
-
-def fzf_location(cmd, fzf_filter=None):
+def fzf_location(cmd, fzf_filter=None, no_default=False):
     """
     Use fzf to quickly filter and select a default location.
     """
     from azure.cli.core.commands.parameters import get_subscription_locations
-
     locations = get_subscription_locations(cmd.cli_ctx)
-    sorted_locations = sorted(locations, key=lambda i: i.name)
-    locations_list = [[l.name, l.display_name, l.regional_display_name] for l in sorted_locations]
+
+    if not locations:
+        raise CLIError('No locations found.'
+                       'If you are logged in, make sure a subscription exists'
+                       'and you have access to it. If you are not logged'
+                       'in, please run "az login" to access your account.')
+    # Use tabulate to make a pretty table for fzf to display
     headers = ["Name", "Display Name", "Regional Display Name"]
-    locations_table = str(tabulate(locations_list, headers=headers, tablefmt='github')).split('\n')
-    result = _fzf(locations_table, header_lines=2, fzf_filter=fzf_filter)
+    locations_sorted = sorted(locations, key=lambda i: i.name)
+    locations_list = [[l.name, l.display_name, l.regional_display_name] for l in locations_sorted]
+    result = _fzf(_fzf_table(locations_list, headers), header_lines=2, fzf_filter=fzf_filter)
 
     if result:
         location = result.split('|')[1].strip()
-        cmd.cli_ctx.config.set_value(cmd.cli_ctx.config.defaults_section_name, 'location', location)
+        if not no_default:
+            cmd.cli_ctx.config.set_value(cmd.cli_ctx.config.defaults_section_name,
+                                         'location', location)
         return next((l for l in locations if l.name == location), None)
 
     return None
 
 
-def fzf_subscription(cmd, fzf_filter=None):
+def fzf_subscription(cmd, fzf_filter=None, no_default=False):
     """
     Use fzf to quickly filter and select your current subscription.
     """
@@ -311,26 +332,20 @@ def fzf_subscription(cmd, fzf_filter=None):
     subscriptions = load_subscriptions(cmd.cli_ctx, all_clouds=False, refresh=False)
 
     if not subscriptions:
-        raise CLIError('Please run "az login" to access your accounts.')
+        raise CLIError('No subscriptions found.'
+                       'If you are logged in, make sure subscriptions exist'
+                       'and you have access to them. If you are not logged'
+                       'in, please run "az login" to access your account.')
+    headers = ["Name", "State", "ID"]
+    subs_sorted = sorted(subscriptions, key=lambda i: i["name"])
+    subs_list = [[sub["name"], sub["state"], sub["id"]] for sub in subs_sorted]
+    result = _fzf(_fzf_table(subs_list, headers), header_lines=2, fzf_filter=fzf_filter)
 
-    for sub in subscriptions:
-        sub['cloudName'] = sub.pop('environmentName', None)
-
-    enabled_ones = [s for s in subscriptions if s.get('state') == 'Enabled']
-    if len(enabled_ones) != len(subscriptions):
-        LOGGER.warning("A few accounts are skipped as they don't have 'Enabled' state.")
-        subscriptions = enabled_ones
-
-    if subscriptions:
-        subs_list = [[s["name"], s["id"]] for s in sorted(subscriptions, key=lambda i: i["name"])]
-        headers = ["Name", "ID"]
-        subs_table = str(tabulate(subs_list, headers=headers, tablefmt='github')).split('\n')
-        result = _fzf(subs_table, header_lines=2,
-                      preview='az account show --subscription {-2}', fzf_filter=fzf_filter)
-
-        if result:
-            subscription = result.split('|')[-2].strip()
+    if result:
+        subscription = result.split('|')[-2].strip()
+        if not no_default:
+            LOGGER.info('setting default subscription')
             Profile(cli_ctx=cmd.cli_ctx).set_active_subscription(subscription)
-            return next((s for s in subscriptions if s["id"] == subscription))
+        return next((s for s in subscriptions if s["id"] == subscription))
 
     return None
