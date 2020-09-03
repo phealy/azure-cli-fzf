@@ -3,21 +3,25 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 # pylint: disable=line-too-long
+"""
+Initializes the command arguments for azext_fzf.
+"""
 
 from knack.arguments import CLIArgumentType
 
 
 def load_arguments(self, _):
+    """
+    Loads the argument lists for the fzf extension.
+    """
+    fzf_install_dir_type = CLIArgumentType(options_list=['--install-dir', '-d'], help='Path to the directory where fzf should be installed.', id_part='install-dir')
+    fzf_version_type = CLIArgumentType(options_list=['--version', '-v'], help='Version of fzf to install.', id_part='version')
+    fzf_filter_type = CLIArgumentType(options_list=['--filter', '-f'], help='A filter string to pass to fzf.', id_part='filter')
 
-    from azure.cli.core.commands.parameters import tags_type
-    from azure.cli.core.commands.validators import get_default_location_from_resource_group
+    with self.argument_context('fzf install') as command:
+        command.argument('install_dir', fzf_install_dir_type)
+        command.argument('version', fzf_version_type)
 
-    fzf_name_type = CLIArgumentType(options_list='--fzf-name-name', help='Name of the Fzf.', id_part='name')
-
-    with self.argument_context('fzf') as c:
-        c.argument('tags', tags_type)
-        c.argument('location', validator=get_default_location_from_resource_group)
-        c.argument('fzf_name', fzf_name_type, options_list=['--name', '-n'])
-
-    with self.argument_context('fzf list') as c:
-        c.argument('fzf_name', fzf_name_type, id_part=None)
+    self.argument_context('fzf group').argument('fzf_filter', fzf_filter_type)
+    self.argument_context('fzf location').argument('fzf_filter', fzf_filter_type)
+    self.argument_context('fzf subscription').argument('fzf_filter', fzf_filter_type)
