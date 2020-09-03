@@ -16,3 +16,8 @@ Release History
 * Implemented fzf functionality internally instead of using a module
 * Initial unit testing
 * Implemented install functionality
+
+0.9.0
+++++++
+* Completed unit testing
+* Completed pylint
