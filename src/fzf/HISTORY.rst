@@ -33,3 +33,7 @@ Release History
 * Added more error handling to group/location
 * Used a better function to get_resource_groups()
 * Moved tabulate call to its own function so that it's not repeated.
+
+1.0.0
+++++++
+Initial stable release, some linting cleanup.

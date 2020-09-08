@@ -7,3 +7,7 @@ Currently supported:
 - Subscription
 - Resource group
 - Location
+
+### Support
+
+Please note that this is a side project and is not officially supported by Microsoft. Please open any requests as issues on the project and do not call Microsoft support regarding this extension.
