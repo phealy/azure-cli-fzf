@@ -14,7 +14,7 @@ except ImportError:
     from distutils import log as logger
     logger.warn("Wheel is not available, disabling bdist_wheel hook")
 
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 # The full list of classifiers is available at
 # https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -32,9 +32,9 @@ CLASSIFIERS = [
 
 DEPENDENCIES = []
 
-with open('README.rst', 'r', encoding='utf-8') as f:
+with open('README.md', 'r', encoding='utf-8') as f:
     README = f.read()
-with open('HISTORY.rst', 'r', encoding='utf-8') as f:
+with open('HISTORY.md', 'r', encoding='utf-8') as f:
     HISTORY = f.read()
 
 setup(
