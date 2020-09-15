@@ -30,3 +30,6 @@
 
 ## 1.0.1
 * Update minimum version to 2.9.0 because we depend on a location format change in that version.
+
+## 1.0.2
+* Add experimental flag to indicate lack of support from Microsoft, as this is a side project.
